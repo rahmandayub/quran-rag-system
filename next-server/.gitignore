@@ -31,7 +31,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env.local
+# Note: .env is commented out to allow tracking in monorepo
+# .env
 
 # vercel
 .vercel
