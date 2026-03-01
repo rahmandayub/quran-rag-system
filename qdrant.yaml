@@ -1,0 +1,59 @@
+# Qdrant Configuration File
+# Reference: https://qdrant.tech/documentation/guides/configuration/
+
+# Service configuration
+log_level: INFO
+
+# Storage configuration
+storage:
+  storage_path: /qdrant/storage
+  snapshots_path: /qdrant/snapshots
+  
+  # HNSW index configuration
+  # Optimized for Quran verses collection (~6,236 vectors)
+  hnsw_config:
+    m: 16                    # Number of connections per node in the graph
+    ef_construct: 100        # Size of the dynamic candidate list for construction
+  
+  # Optimizer configuration
+  # Balanced for moderate dataset size with efficient memory usage
+  optimizers_config:
+    default_segment_number: 2
+    memmap_threshold: 10000  # Use memory-mapped files for vectors larger than this threshold
+  
+  # Performance tuning
+  performance:
+    max_search_threads: 4
+    max_optimization_threads: 2
+
+# REST API configuration
+rest:
+  host: 0.0.0.0
+  port: 6333
+
+# gRPC API configuration
+grpc:
+  host: 0.0.0.0
+  port: 6334
+
+# Collection defaults for quran_verses
+# These settings are used when creating collections via API
+collection_defaults:
+  vectors:
+    size: 768                # embeddinggemma model output dimension
+    distance: Cosine         # Cosine similarity for semantic search
+  
+  # Optimizer configuration for new collections
+  optimizer_config:
+    default_segment_number: 2
+    memmap_threshold: 10000
+  
+  # HNSW configuration for new collections
+  hnsw_config:
+    m: 16
+    ef_construct: 100
+  
+  # Wal (Write-Ahead Log) configuration
+  wal_config:
+    wal_capacity_mb: 32
+    wal_segments_ahead: 0

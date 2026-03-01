@@ -1,0 +1,35 @@
+{
+  "name": "next-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 dotenv -e .env.local -- next dev",
+    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 dotenv -e .env.local -- next build",
+    "start": "NODE_TLS_REJECT_UNAUTHORIZED=0 dotenv -e .env.local -- next start",
+    "lint": "eslint",
+    "generate:surah-contexts": "node scripts/generate-surah-contexts.js",
+    "init:qdrant": "dotenv -e .env.local -- node scripts/init-qdrant.js"
+  },
+  "dependencies": {
+    "@qdrant/js-client-rest": "^1.17.0",
+    "lucide-react": "^0.575.0",
+    "next": "16.1.6",
+    "openai": "^6.25.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv-cli": "^11.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

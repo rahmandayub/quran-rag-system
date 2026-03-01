@@ -1,0 +1,759 @@
+/* Arabic Font - Amiri from Google Fonts with font-display swap */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@import 'tailwindcss';
+
+/* ============================================
+   DESIGN TOKENS - Islamic Modern Aesthetic
+   Theme: "Sacred Geometry Meets Modern Minimalism"
+   ============================================ */
+
+:root {
+    /* Primary Colors - Emerald & Gold */
+    --emerald-50: #ecfdf5;
+    --emerald-100: #d1fae5;
+    --emerald-200: #a7f3d0;
+    --emerald-300: #6ee7b7;
+    --emerald-400: #34d399;
+    --emerald-500: #10b981;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
+    --emerald-800: #065f46;
+    --emerald-900: #064e3b;
+    --emerald-950: #022c22;
+
+    /* Gold Accent Colors */
+    --gold-50: #fffbeb;
+    --gold-100: #fef3c7;
+    --gold-200: #fde68a;
+    --gold-300: #fcd34d;
+    --gold-400: #fbbf24;
+    --gold-500: #f59e0b;
+    --gold-600: #d97706;
+    --gold-700: #b45309;
+    --gold-800: #92400e;
+    --gold-900: #78350f;
+
+    /* Cream/Warm Background */
+    --cream-50: #fffbf0;
+    --cream-100: #fff7e0;
+    --cream-200: #ffefc4;
+    --cream-300: #ffe7a8;
+    --cream-400: #ffdf8c;
+    --cream-500: #ffd770;
+
+    /* Deep Teal/Emerald for Dark Mode */
+    --teal-900: #064e3b;
+    --teal-950: #022c22;
+    --dark-surface: #0a1a1a;
+    --dark-surface-elevated: #122a2a;
+
+    /* Semantic Colors */
+    --background: #fbfaf5;
+    --foreground: #1c1917;
+    --surface: #ffffff;
+    --surface-elevated: #ffffff;
+    --border: rgba(16, 185, 129, 0.1);
+    --border-strong: rgba(16, 185, 129, 0.2);
+    --muted: #78716c;
+    --muted-foreground: #a8a29e;
+    --accent: var(--emerald-600);
+    --accent-foreground: #ffffff;
+    --primary: var(--emerald-600);
+    --primary-foreground: #ffffff;
+    --secondary: var(--gold-500);
+    --secondary-foreground: #ffffff;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+
+    /* Shadows - More subtle and layered */
+    --shadow-xs: 0 1px 2px 0 rgb(6 95 59 / 0.02);
+    --shadow-sm: 0 2px 4px 0 rgb(6 95 59 / 0.05);
+    --shadow-md:
+        0 4px 12px -2px rgb(6 95 59 / 0.08), 0 2px 4px -2px rgb(6 95 59 / 0.05);
+    --shadow-lg:
+        0 12px 24px -4px rgb(6 95 59 / 0.1), 0 4px 8px -4px rgb(6 95 59 / 0.05);
+    --shadow-xl: 0 24px 48px -6px rgb(6 95 59 / 0.12);
+    --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.2);
+    --shadow-gold-glow: 0 0 30px rgba(245, 158, 11, 0.2);
+
+    /* Glass Effects */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-blur: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #040d0d;
+        --foreground: #e2e8f0;
+        --surface: var(--dark-surface);
+        --surface-elevated: var(--dark-surface-elevated);
+        --border: rgba(16, 185, 129, 0.15);
+        --border-strong: rgba(16, 185, 129, 0.25);
+        --muted: #94a3b8;
+        --muted-foreground: #64748b;
+        --accent: var(--emerald-400);
+        --accent-foreground: #022c22;
+        --primary: var(--emerald-500);
+        --primary-foreground: #022c22;
+        --secondary: var(--gold-400);
+        --secondary-foreground: #78350f;
+        --glass-bg: rgba(10, 26, 26, 0.7);
+        --glass-border: rgba(16, 185, 129, 0.1);
+    }
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-surface: var(--surface);
+    --color-surface-elevated: var(--surface-elevated);
+    --color-border: var(--border);
+    --color-border-strong: var(--border-strong);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-emerald-50: var(--emerald-50);
+    --color-emerald-100: var(--emerald-100);
+    --color-emerald-200: var(--emerald-200);
+    --color-emerald-300: var(--emerald-300);
+    --color-emerald-400: var(--emerald-400);
+    --color-emerald-500: var(--emerald-500);
+    --color-emerald-600: var(--emerald-600);
+    --color-emerald-700: var(--emerald-700);
+    --color-emerald-800: var(--emerald-800);
+    --color-emerald-900: var(--emerald-900);
+    --color-emerald-950: var(--emerald-950);
+    --color-gold-50: var(--gold-50);
+    --color-gold-100: var(--gold-100);
+    --color-gold-200: var(--gold-200);
+    --color-gold-300: var(--gold-300);
+    --color-gold-400: var(--gold-400);
+    --color-gold-500: var(--gold-500);
+    --color-gold-600: var(--gold-600);
+    --color-gold-700: var(--gold-700);
+    --color-gold-800: var(--gold-800);
+    --color-gold-900: var(--gold-900);
+    --color-cream-50: var(--cream-50);
+    --color-cream-100: var(--cream-100);
+    --font-sans:
+        'Plus Jakarta Sans', var(--font-geist-sans), system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono);
+    --font-amiri: 'Amiri', serif;
+    --shadow-xs: var(--shadow-xs);
+    --shadow-sm: var(--shadow-sm);
+    --shadow-md: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg);
+    --shadow-xl: var(--shadow-xl);
+    --shadow-2xl: var(--shadow-2xl);
+    --shadow-glow: var(--shadow-glow);
+    --shadow-gold-glow: var(--shadow-gold-glow);
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --radius-xl: var(--radius-xl);
+    --radius-2xl: var(--radius-2xl);
+    --radius-3xl: var(--radius-3xl);
+    --radius-full: var(--radius-full);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   SAFE AREA INSETS FOR MOBILE DEVICES
+   Prevents content from going behind browser UI
+   ============================================ */
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    /* Add safe area padding to mobile viewport */
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Ensure viewport height respects safe areas on mobile */
+@supports (height: 100dvh) {
+    .mobile-viewport {
+        height: 100dvh;
+    }
+}
+
+/* Prevent content from being hidden behind browser UI */
+html,
+body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* ============================================
+   ARABIC TEXT RENDERING FIX
+   Prevents rectangle blocks on mobile devices
+   ============================================ */
+
+.font-amiri {
+    font-family: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', serif !important;
+    font-display: swap;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1;
+    /* Ensure proper Arabic ligature rendering */
+    font-variant-ligatures: common-ligatures contextual;
+    /* Prevent text from being clipped */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: none;
+}
+
+/* Force font load on mobile */
+@supports (-webkit-touch-callout: none) {
+    .font-amiri {
+        font-family: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', serif !important;
+    }
+}
+
+/* ============================================
+   ISLAMIC GEOMETRIC PATTERN BACKGROUND
+   Subtle decorative pattern for visual depth
+   ============================================ */
+
+.islamic-pattern {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.025;
+    z-index: 0;
+    background-image: radial-gradient(
+        var(--emerald-600) 0.5px,
+        transparent 0.5px
+    );
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse at center, black, transparent 80%);
+}
+
+.islamic-pattern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        var(--emerald-500) 12.5px,
+        transparent 13px
+    );
+    opacity: 0.1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .islamic-pattern {
+        opacity: 0.02;
+    }
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR - Sacred Modernism
+   ============================================ */
+
+/* Base scrollbar dimensions */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+/* Track - subtle groove effect */
+::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: var(--radius-full);
+}
+
+/* Thumb - emerald gradient with glow */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        var(--emerald-300) 0%,
+        var(--emerald-400) 50%,
+        var(--emerald-300) 100%
+    );
+    border-radius: var(--radius-full);
+    border: 1px solid transparent;
+    background-clip: content-box;
+    box-shadow: inset 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Thumb hover - enhanced glow */
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+        180deg,
+        var(--emerald-400) 0%,
+        var(--emerald-500) 50%,
+        var(--emerald-400) 100%
+    );
+    background-clip: content-box;
+    box-shadow:
+        inset 0 0 6px rgba(16, 185, 129, 0.4),
+        0 0 8px rgba(16, 185, 129, 0.2);
+}
+
+/* Thumb active - pressed effect */
+::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(
+        180deg,
+        var(--emerald-500) 0%,
+        var(--emerald-600) 50%,
+        var(--emerald-500) 100%
+    );
+    background-clip: content-box;
+}
+
+/* Dark mode - deep emerald with gold hint */
+@media (prefers-color-scheme: dark) {
+    ::-webkit-scrollbar-track {
+        background: rgba(6, 95, 59, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(
+            180deg,
+            var(--emerald-700) 0%,
+            var(--emerald-600) 50%,
+            var(--emerald-700) 100%
+        );
+        box-shadow: inset 0 0 3px rgba(16, 185, 129, 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(
+            180deg,
+            var(--emerald-600) 0%,
+            var(--emerald-500) 50%,
+            var(--emerald-600) 100%
+        );
+        box-shadow:
+            inset 0 0 8px rgba(16, 185, 129, 0.5),
+            0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+        background: linear-gradient(
+            180deg,
+            var(--emerald-500) 0%,
+            var(--emerald-400) 50%,
+            var(--emerald-500) 100%
+        );
+    }
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--emerald-400) transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+    * {
+        scrollbar-color: var(--emerald-600) rgba(6, 95, 59, 0.1);
+    }
+}
+
+/* ============================================
+   ARABIC TEXT STYLING
+   ============================================ */
+
+.font-amiri {
+    font-family: var(--font-amiri);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Fade In Up - for message entries */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Fade In - for subtle appearances */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Slide In Right - for panel entries */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Scale In - for modals and popups */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Bounce - for loading states */
+@keyframes bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce 1s ease-in-out infinite;
+}
+
+/* Pulse - for loading indicators */
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Shimmer - for skeleton loaders */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(16, 185, 129, 0.05) 25%,
+        rgba(16, 185, 129, 0.15) 50%,
+        rgba(16, 185, 129, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+}
+
+@media (prefers-color-scheme: dark) {
+    .animate-shimmer {
+        background: linear-gradient(
+            90deg,
+            rgba(16, 185, 129, 0.05) 25%,
+            rgba(16, 185, 129, 0.1) 50%,
+            rgba(16, 185, 129, 0.05) 75%
+        );
+        background-size: 200% 100%;
+    }
+}
+
+/* Glow - for accent elements */
+@keyframes glow {
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgb(16 185 129 / 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgb(16 185 129 / 0.5);
+    }
+}
+
+.animate-glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+/* Gold Glow - for special elements */
+@keyframes goldGlow {
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgb(245 158 11 / 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgb(245 158 11 / 0.5);
+    }
+}
+
+.animate-gold-glow {
+    animation: goldGlow 2s ease-in-out infinite;
+}
+
+/* Spin */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS
+   ============================================ */
+
+* {
+    transition-property:
+        background-color, border-color, color, fill, stroke, box-shadow;
+    transition-timing-function: var(--transition-base);
+    transition-duration: var(--transition-base);
+}
+
+/* ============================================
+   FOCUS STYLES
+   ============================================ */
+
+input:focus,
+textarea:focus,
+button:focus,
+[tabindex]:focus {
+    outline: none;
+}
+
+/* ============================================
+   SELECTION COLOR
+   ============================================ */
+
+::selection {
+    background-color: var(--emerald-500);
+    color: white;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Glass morphism effect */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+}
+
+.glass-pill {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-full);
+    padding: 0.5rem 1rem;
+}
+
+/* Ornamental border - Islamic inspired */
+.ornamental-border {
+    position: relative;
+    border: 2px solid var(--emerald-200);
+}
+
+.ornamental-border::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--gold-300);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* Gradient text */
+.gradient-text {
+    background: linear-gradient(135deg, var(--emerald-600), var(--gold-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   RTL (Right-to-Left) SUPPORT
+   For Arabic language
+   ============================================ */
+
+/* RTL direction utility */
+[dir="rtl"] {
+    direction: rtl;
+}
+
+[dir="ltr"] {
+    direction: ltr;
+}
+
+/* RTL text alignment */
+html[dir="rtl"] {
+    text-align: right;
+}
+
+html[dir="ltr"] {
+    text-align: left;
+}
+
+/* Arabic font class */
+.font-arabic {
+    font-family: var(--font-amiri), 'Amiri', 'Traditional Arabic', serif;
+    line-height: 1.8;
+}
+
+/* RTL-aware spacing using logical properties */
+.rtl-space-x-right {
+    margin-inline-start: 0;
+    margin-inline-end: 0.5rem;
+}
+
+.rtl-space-x-left {
+    margin-inline-start: 0.5rem;
+    margin-inline-end: 0;
+}
+
+/* Flip icons and decorative elements in RTL */
+html[dir="rtl"] .rtl-flip {
+    transform: scaleX(-1);
+}
+
+/* RTL-specific adjustments for chat bubbles */
+html[dir="rtl"] .rtl\:rounded-tr-2xl {
+    border-radius: var(--radius-2xl) 0 0 var(--radius-2xl);
+}
+
+html[dir="rtl"] .rtl\:rounded-tl-2xl {
+    border-radius: 0 var(--radius-2xl) var(--radius-2xl) 0;
+}
+
+/* Ensure proper text rendering for Arabic */
+.arabic-text {
+    font-family: var(--font-amiri), 'Amiri', serif;
+    font-size: 1.25rem;
+    line-height: 2;
+    direction: rtl;
+    unicode-bidi: embed;
+}
+
+/* RTL scrollbar position */
+html[dir="rtl"] {
+    scrollbar-gutter: stable both-edges;
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   Lazy loading and rendering optimizations
+   ============================================ */
+
+/* Content visibility optimization for verse lists */
+.verse-list-container {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+}
+
+/* Card-level optimizations for verse cards */
+.verse-card {
+    contain: layout style paint;
+    will-change: transform, opacity;
+}
+
+/* Optimizations for scrollable containers */
+.scroll-content {
+    contain: layout style;
+    overflow-anchor: auto;
+}
+
+/* Prevent layout shift during lazy loading */
+.lazy-load-placeholder {
+    contain: layout style paint;
+}
+
+/* GPU acceleration for animations */
+.animate-fade-in,
+.animate-slide-up,
+.animate-scale-in {
+    will-change: opacity, transform;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* High performance scrolling */
+.smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Hardware acceleration for fixed/sticky elements */
+.sticky,
+.fixed {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
