@@ -81,3 +81,6 @@ dmypy.json
 
 # datasets
 datasets/zincly/*.csv
+
+# data files
+next-server/data/
