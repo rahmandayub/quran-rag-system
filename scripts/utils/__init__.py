@@ -1,0 +1,71 @@
+"""
+Utility modules for Quran RAG data preparation pipeline.
+
+Provides reusable utilities for:
+- Juz mapping (determining juz number for verses)
+- Revelation place mapping (Makkah/Madinah)
+- Indonesian translation merging
+- Text normalization
+"""
+
+from .juz_mapping import (
+    get_juz_number,
+    get_juz_boundaries,
+    get_verse_key,
+    parse_verse_key,
+    get_juz_for_verse_key,
+    add_juz_to_dataframe,
+    JUZ_BOUNDARIES,
+)
+
+from .revelation_mapping import (
+    get_revelation_place,
+    is_makki,
+    is_madani,
+    add_revelation_place_to_dataframe,
+    MADANI_SURAHS,
+)
+
+from .translation_merge import (
+    load_parquet_files,
+    normalize_parquet_columns,
+    extract_indonesian_translations,
+    merge_indonesian_translations,
+    create_verse_key,
+)
+
+# Import existing utilities from utils.py
+try:
+    from .utils import normalize_text  # type: ignore
+except ImportError:
+    # Fallback if utils.py doesn't have normalize_text
+    def normalize_text(text: str) -> str:
+        """Simple text normalization fallback."""
+        if not text:
+            return ""
+        return " ".join(str(text).split())
+
+__all__ = [
+    # Juz mapping
+    'get_juz_number',
+    'get_juz_boundaries',
+    'get_verse_key',
+    'parse_verse_key',
+    'get_juz_for_verse_key',
+    'add_juz_to_dataframe',
+    'JUZ_BOUNDARIES',
+    # Revelation mapping
+    'get_revelation_place',
+    'is_makki',
+    'is_madani',
+    'add_revelation_place_to_dataframe',
+    'MADANI_SURAHS',
+    # Translation merge
+    'load_parquet_files',
+    'normalize_parquet_columns',
+    'extract_indonesian_translations',
+    'merge_indonesian_translations',
+    'create_verse_key',
+    # Text utilities
+    'normalize_text',
+]

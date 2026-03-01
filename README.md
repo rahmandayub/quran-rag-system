@@ -67,61 +67,6 @@ docker-compose down -v
 |---------|--------------|
 | Qdrant | 1.5GB |
 
-## Creating the Quran Verses Collection
-
-After starting Qdrant, create the collection with these settings:
-
-```python
-from qdrant_client import QdrantClient
-from qdrant_client.models import (
-    Distance,
-    VectorParams,
-    HnswConfigDiff,
-    OptimizersConfigDiff,
-    PayloadSchemaType,
-)
-
-# Connect to Qdrant
-client = QdrantClient(host="localhost", port=6335)
-
-# Collection configuration
-collection_name = "quran_verses"
-vector_size = 768  # embeddinggemma output dimension
-distance = Distance.COSINE
-
-# Create collection
-client.create_collection(
-    collection_name=collection_name,
-    vectors_config=VectorParams(
-        size=vector_size,
-        distance=distance,
-    ),
-    hnsw_config=HnswConfigDiff(
-        m=16,
-        ef_construct=100,
-    ),
-    optimizers_config=OptimizersConfigDiff(
-        default_segment_number=2,
-        memmap_threshold=10000,
-    ),
-)
-
-# Create payload indexes for filtering
-client.create_payload_index(
-    collection_name=collection_name,
-    field_name="surah_number",
-    field_schema=PayloadSchemaType.INTEGER,
-)
-
-client.create_payload_index(
-    collection_name=collection_name,
-    field_name="juz",
-    field_schema=PayloadSchemaType.INTEGER,
-)
-
-print(f"Collection '{collection_name}' created successfully!")
-```
-
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -129,12 +74,12 @@ print(f"Collection '{collection_name}' created successfully!")
 | `QDRANT_HOST` | localhost | Qdrant host for client connections |
 | `QDRANT_PORT` | 6335 | REST API port |
 | `QDRANT_GRPC_PORT` | 6336 | gRPC API port |
-| `QDRANT_COLLECTION_NAME` | quran_verses | Default collection name for Quran verses |
+| `QDRANT_COLLECTION_NAME` | quran_verses_enhanced | Default collection name for Quran verses |
 | `QDRANT_HADITH_COLLECTION_NAME` | hadith_collection | Collection name for Hadith |
 | `DISTANCE_METRIC` | Cosine | Similarity metric (Cosine, Dot, Euclid) |
 | `OLLAMA_HOST` | http://localhost:11434 | Ollama API host |
 | `OLLAMA_EMBEDDING_MODEL` | qwen3-embedding:0.6b | Ollama embedding model |
-| `EMBEDDING_DIMENSION` | 768 | Vector dimension (must match embedding model) |
+| `EMBEDDING_DIMENSION` | 1024 | Vector dimension (must match embedding model) |
 
 **Note:** When changing the embedding model, make sure to update `EMBEDDING_DIMENSION` to match the new model's output dimension:
 - `qwen3-embedding:0.6b` → 1024
@@ -232,7 +177,7 @@ python -m scripts.run
 ## Next Steps
 
 1. Run the Python data processing scripts to prepare Quran data
-2. Generate embeddings using Ollama's `embeddinggemma` model
+2. Generate embeddings using Ollama's embedding model
 3. Index vectors in Qdrant using the provided Python scripts
 
 ---
@@ -270,33 +215,20 @@ python -m scripts.embedding_generator
 python -m scripts.qdrant_indexer
 ```
 
-#### Option 3: Run with Skip Options
-
-```bash
-# Skip data processing (if already done)
-python -m scripts.run --skip-processing
-
-# Skip embedding generation (if already done)
-python -m scripts.run --skip-embedding
-
-# Skip Qdrant indexing (if already done)
-python -m scripts.run --skip-indexing
-```
-
 ### Pipeline Phases
 
 #### Phase 1: Data Processing
 
-**Input:** 172 parquet files from `quran/data/`
+**Input:** `dataset/zincly/quranpak-explore-114-dataset.csv`
 **Output:** `output/processed_data.json` and `output/processed_data.parquet`
 
 This phase:
-- Loads all 172 parquet files
-- Validates 6,236 verses with required fields
-- Normalizes text (UTF-8, Arabic normalization)
-- Creates `full_context` field (Arabic + Indonesian + English)
-- Generates unique IDs (`{surah_number}:{verse_number}`)
-- Creates reference strings
+- Loads the CSV dataset (6,236 verses)
+- Validates required fields
+- Enriches with derived fields (juz, revelation_place, themes)
+- Merges Indonesian translations from legacy parquet files
+- Normalizes text fields
+- Exports processed data
 
 #### Phase 2: Embedding Generation
 
@@ -305,7 +237,7 @@ This phase:
 
 This phase:
 - Connects to Ollama API (`http://localhost:11434`)
-- Uses `embeddinggemma` model (768 dimensions)
+- Uses configured embedding model (default: `qwen3-embedding:0.6b`, 1024 dimensions)
 - Processes verses with checkpointing (can resume)
 - Implements retry logic with exponential backoff
 
@@ -315,7 +247,7 @@ This phase:
 curl -fsSL https://ollama.com/install.sh | sh
 
 # Pull embedding model
-ollama pull embeddinggemma
+ollama pull qwen3-embedding:0.6b
 
 # Verify model
 ollama list
@@ -324,11 +256,11 @@ ollama list
 #### Phase 3: Qdrant Indexing
 
 **Input:** `output/embeddings.json`
-**Output:** Qdrant collection `quran_verses`
+**Output:** Qdrant collection `quran_verses_enhanced`
 
 This phase:
-- Creates Qdrant collection (768 dims, COSINE distance)
-- Creates payload indexes (surah_number, juz)
+- Creates Qdrant collection (1024 dims, COSINE distance)
+- Creates payload indexes (chapter_id, juz, themes, etc.)
 - Batch upserts all vectors
 - Verifies storage completeness
 
@@ -345,25 +277,55 @@ curl http://localhost:6335/
 
 | File | Description |
 |------|-------------|
-| `output/processed_data.json` | Cleaned dataset with full_context |
+| `output/processed_data.json` | Cleaned dataset with enriched fields |
 | `output/processed_data.parquet` | Cleaned dataset in Parquet format |
-| `output/embeddings.json` | Dataset with 768-dimension embeddings |
+| `output/embeddings.json` | Dataset with embeddings |
 | `output/checkpoints/embeddings_checkpoint.jsonl` | Embedding progress checkpoint |
 | `output/logs/pipeline.log` | Pipeline execution logs |
 
-### Qdrant Collection Schema
+### Qdrant Collection Schema (Enhanced)
 
 | Field | Type | Indexed | Description |
 |-------|------|---------|-------------|
-| `id` | String | No | Verse ID (`{surah}:{verse}`) |
-| `surah_number` | Integer | Yes | Surah number (1-114) |
+| `verse_key` | String | Yes | Verse key (`{chapter}:{verse}`) |
+| `chapter_id` | Integer | Yes | Surah number (1-114) |
 | `verse_number` | Integer | No | Verse number within surah |
-| `surah_name_en` | String | No | Surah name in English |
+| `chapter_name` | String | No | Surah name |
 | `juz` | Integer | Yes | Juz number (1-30) |
-| `verse_arabic` | String | No | Arabic text |
-| `verse_indonesian` | String | No | Indonesian translation |
-| `verse_english` | String | No | English translation |
-| `reference` | String | No | Formatted reference string |
+| `revelation_place` | String | Yes | Makkah or Madinah |
+| `main_themes` | String | Yes | JSON array of themes |
+| `primary_theme` | String | Yes | Primary theme |
+| `theme_count` | Integer | No | Number of themes |
+| `audience_group` | String | Yes | Target audience |
+| `arabic_text` | String | No | Arabic text |
+| `english_translation` | String | No | English translation |
+| `indonesian_translation` | String | No | Indonesian translation |
+| `tafsir_text` | String | No | Tafsir commentary |
+| `practical_application` | String | No | Practical application |
+
+### Modular Architecture
+
+The Python codebase has been refactored into modular components:
+
+#### Configuration Package (`scripts/config/`)
+- `paths.py` - File and directory paths
+- `dataset.py` - Dataset-specific settings
+- `embedding.py` - Embedding model configuration
+- `qdrant.py` - Qdrant database settings
+- `processing.py` - General processing options
+
+#### Utility Modules (`scripts/utils/`)
+- `juz_mapping.py` - Juz number calculation
+- `revelation_mapping.py` - Makkah/Madinah classification
+- `translation_merge.py` - Indonesian translation merging
+
+#### Processing Pipeline (`scripts/processing/`)
+- `loader.py` - Data loading (CSV/parquet)
+- `validator.py` - Data validation
+- `enricher.py` - Field enrichment
+- `merger.py` - Translation merging
+- `normalizer.py` - Text normalization
+- `exporter.py` - Data export
 
 ### Troubleshooting
 

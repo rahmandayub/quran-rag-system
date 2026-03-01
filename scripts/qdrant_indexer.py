@@ -3,6 +3,14 @@ Qdrant Indexer Script for Quran RAG System
 
 This script stores generated embeddings in Qdrant vector database
 with proper collection configuration, payload indexes, and batch upsert operations.
+
+Updated for new enhanced schema with themes, tafsir, and Indonesian translations.
+
+Usage:
+    python -m scripts.qdrant_indexer
+    
+Or run directly:
+    python scripts/qdrant_indexer.py
 """
 
 import json
@@ -15,9 +23,9 @@ from qdrant_client import QdrantClient
 from qdrant_client import models
 
 try:
-    from .config import paths, qdrant_config
+    from .config import paths, qdrant_config, dataset_config
 except ImportError:
-    from config import paths, qdrant_config
+    from config import paths, qdrant_config, dataset_config
 
 
 class QdrantIndexer:
@@ -80,20 +88,26 @@ class QdrantIndexer:
         """
         success = True
         
-        for field_name in qdrant_config.PAYLOAD_INDEX_FIELDS:
+        for index_config in qdrant_config.PAYLOAD_INDEXES:
+            field_name = index_config['field']
+            field_type = index_config['type']
+            
             try:
-                # Determine field type
-                if field_name in ['surah_number', 'verse_number', 'juz']:
-                    field_type = models.PayloadSchemaType.INTEGER
+                # Map type string to models
+                if field_type == 'integer':
+                    field_schema = models.PayloadSchemaType.INTEGER
+                elif field_type == 'keyword':
+                    field_schema = models.PayloadSchemaType.KEYWORD
                 else:
-                    field_type = models.PayloadSchemaType.KEYWORD
+                    logger.warning(f"Unknown field type: {field_type} for {field_name}")
+                    continue
                 
                 self.client.create_payload_index(
                     collection_name=self.collection_name,
                     field_name=field_name,
-                    field_schema=field_type
+                    field_schema=field_schema
                 )
-                logger.info(f"Created payload index for '{field_name}'")
+                logger.info(f"Created payload index for '{field_name}' ({field_type})")
                 
             except Exception as e:
                 logger.error(f"Failed to create index for '{field_name}': {e}")
@@ -101,7 +115,7 @@ class QdrantIndexer:
         
         return success
     
-    def upsert_verses(self, verses: List[dict], batch_size: int = 100) -> int:
+    def upsert_verses(self, verses: List[dict], batch_size: int = None) -> int:
         """
         Upsert verses into Qdrant.
         
@@ -112,6 +126,7 @@ class QdrantIndexer:
         Returns:
             Number of successfully upserted verses
         """
+        batch_size = batch_size or qdrant_config.BATCH_SIZE
         total_upserted = 0
         
         for i in range(0, len(verses), batch_size):
@@ -149,7 +164,7 @@ class QdrantIndexer:
         """
         Generate numeric point ID from verse data.
         
-        Uses formula: (surah_number - 1) * 1000 + verse_number
+        Uses formula: (chapter_id - 1) * 1000 + verse_number
         This ensures unique IDs and preserves surah ordering.
         
         Args:
@@ -158,13 +173,15 @@ class QdrantIndexer:
         Returns:
             Unique numeric ID
         """
-        surah = int(verse['surah_number'])
-        verse_num = int(verse['verse_number'])
-        return (surah - 1) * 1000 + verse_num
+        chapter = int(verse.get('chapter_id', verse.get('surah_number', 1)))
+        verse_num = int(verse.get('verse_number', 1))
+        return (chapter - 1) * 1000 + verse_num
     
     def _create_payload(self, verse: dict) -> dict:
         """
         Create payload dictionary from verse data.
+        
+        Uses new enhanced schema with themes, tafsir, and Indonesian translations.
         
         Args:
             verse: Verse dictionary
@@ -173,18 +190,32 @@ class QdrantIndexer:
             Payload dictionary
         """
         return {
-            'id': verse['id'],
-            'surah_number': int(verse['surah_number']),
-            'verse_number': int(verse['verse_number']),
-            'surah_name_arabic': verse['surah_name_arabic'],
-            'surah_name_latin': verse['surah_name_latin'],
-            'surah_name_en': verse['surah_name_en'],
-            'surah_name_id': verse['surah_name_indonesian'],
-            'juz': int(verse['juz']),
-            'verse_arabic': verse['verse_arabic'],
-            'verse_indonesian': verse['verse_indonesian'],
-            'verse_english': verse['verse_english'],
-            'reference': verse['reference']
+            # Core identifiers
+            'verse_key': verse.get('verse_key', f"{verse.get('chapter_id')}:{verse.get('verse_number')}"),
+            'chapter_id': int(verse.get('chapter_id', 0)),
+            'verse_number': int(verse.get('verse_number', 0)),
+            'chapter_name': verse.get('chapter_name', ''),
+            
+            # Enrichment fields
+            'juz': int(verse.get('juz', 0)),
+            'revelation_place': verse.get('revelation_place', ''),
+            
+            # Theme fields (for filtering)
+            'main_themes': verse.get('main_themes', '[]'),
+            'primary_theme': verse.get('primary_theme', ''),
+            'theme_count': int(verse.get('theme_count', 0)),
+            'audience_group': verse.get('audience_group', ''),
+            
+            # Text content
+            'arabic_text': verse.get('arabic_text', ''),
+            'english_translation': verse.get('english_translation', ''),
+            'indonesian_translation': verse.get('indonesian_translation', ''),
+            'tafsir_text': verse.get('tafsir_text', ''),
+            
+            # Metadata
+            'practical_application': verse.get('practical_application', ''),
+            'translation_length': int(verse.get('translation_length', 0)),
+            'tafsir_length': int(verse.get('tafsir_length', 0)),
         }
     
     def verify_storage(self, expected_count: int) -> dict:
@@ -245,25 +276,43 @@ class QdrantIndexer:
         
         return [
             {
-                'id': result.payload.get('id'),
-                'surah_number': result.payload.get('surah_number'),
+                'verse_key': result.payload.get('verse_key'),
+                'chapter_id': result.payload.get('chapter_id'),
                 'verse_number': result.payload.get('verse_number'),
-                'surah_name_arabic': result.payload.get('surah_name_arabic'),
-                'surah_name_latin': result.payload.get('surah_name_latin'),
-                'surah_name_en': result.payload.get('surah_name_en'),
-                'surah_name_id': result.payload.get('surah_name_id'),
-                'verse_arabic': result.payload.get('verse_arabic'),
-                'verse_indonesian': result.payload.get('verse_indonesian'),
-                'reference': result.payload.get('reference'),
+                'chapter_name': result.payload.get('chapter_name'),
+                'juz': result.payload.get('juz'),
+                'revelation_place': result.payload.get('revelation_place'),
+                'main_themes': result.payload.get('main_themes'),
+                'primary_theme': result.payload.get('primary_theme'),
+                'arabic_text': result.payload.get('arabic_text'),
+                'english_translation': result.payload.get('english_translation'),
+                'indonesian_translation': result.payload.get('indonesian_translation'),
+                'tafsir_text': result.payload.get('tafsir_text'),
                 'score': result.score
             }
             for result in search_results
         ]
+    
+    def delete_collection(self) -> bool:
+        """
+        Delete the collection (use with caution).
+        
+        Returns:
+            True if deleted, False if didn't exist
+        """
+        try:
+            self.client.delete_collection(self.collection_name)
+            logger.info(f"Deleted collection '{self.collection_name}'")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to delete collection: {e}")
+            return False
 
 
 def index_quran_embeddings(
     embeddings_file: Path = None,
-    verify: bool = True
+    verify: bool = True,
+    recreate_collection: bool = False
 ) -> dict:
     """
     Main function to index all Quran embeddings in Qdrant.
@@ -271,13 +320,14 @@ def index_quran_embeddings(
     Args:
         embeddings_file: Path to embeddings JSON file
         verify: Whether to verify after indexing
+        recreate_collection: Whether to delete and recreate collection
         
     Returns:
         Indexing results dictionary
     """
     # Load embeddings
     if embeddings_file is None:
-        embeddings_file = paths.EMBEDDINGS_FILE
+        embeddings_file = paths.OUTPUT_DIR / "embeddings.json"
     
     logger.info(f"Loading embeddings from {embeddings_file}...")
     
@@ -295,6 +345,10 @@ def index_quran_embeddings(
     # Initialize indexer
     indexer = QdrantIndexer()
     
+    # Delete and recreate if requested
+    if recreate_collection:
+        indexer.delete_collection()
+    
     # Create collection
     indexer.create_collection()
     
@@ -303,7 +357,7 @@ def index_quran_embeddings(
     
     # Upsert verses
     logger.info("Upserting verses to Qdrant...")
-    total_upserted = indexer.upsert_verses(verses, batch_size=100)
+    total_upserted = indexer.upsert_verses(verses, batch_size=qdrant_config.BATCH_SIZE)
     logger.info(f"Upserted {total_upserted} verses")
     
     # Verify
