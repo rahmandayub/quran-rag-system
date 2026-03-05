@@ -1,13 +1,15 @@
 """
 Data Processing Pipeline for Quran RAG System
 
+UPDATED: Now uses parquet dataset as primary source for authentic Arabic text
+(arabic-text-uthmani) and Indonesian translations, with CSV enrichment data
+(tafsir, themes) merged in.
+
 This script orchestrates the modular data processing pipeline:
-1. Load CSV dataset
+1. Load parquet dataset (primary source) + CSV enrichment
 2. Validate data
-3. Enrich with derived fields (juz, revelation place, themes)
-4. Merge Indonesian translations from legacy parquet files
-5. Normalize text fields
-6. Export processed data
+3. Normalize text fields
+4. Export processed data
 
 Usage:
     python -m scripts.data_processing
@@ -30,21 +32,17 @@ logger.add(
 
 try:
     from .config import paths, dataset_config, processing_config
+    from .processing.loader import load_combined_dataset
     from .processing import (
-        load_csv_dataset,
         validate_data,
-        enrich_verse_data,
-        merge_translations,
         normalize_verse_texts,
         export_processed_data,
     )
 except ImportError:
     from config import paths, dataset_config, processing_config
+    from processing.loader import load_combined_dataset
     from processing import (
-        load_csv_dataset,
         validate_data,
-        enrich_verse_data,
-        merge_translations,
         normalize_verse_texts,
         export_processed_data,
     )
@@ -60,11 +58,14 @@ def run_pipeline():
     logger.info("=" * 60)
     logger.info("Starting Quran Data Processing Pipeline")
     logger.info("=" * 60)
+    logger.info("Primary source: Parquet (arabic-text-uthmani + Indonesian)")
+    logger.info("Enrichment source: CSV (tafsir, themes)")
+    logger.info("=" * 60)
     
-    # Step 1: Load CSV dataset
-    logger.info("Step 1: Loading CSV dataset...")
-    df = load_csv_dataset(paths.DATASET_CSV_PATH)
-    logger.info(f"Loaded {len(df)} verses from CSV")
+    # Step 1: Load combined dataset (parquet + CSV enrichment)
+    logger.info("Step 1: Loading combined dataset...")
+    df = load_combined_dataset()
+    logger.info(f"Loaded {len(df)} verses")
     
     # Step 2: Validate data
     logger.info("Step 2: Validating data...")
@@ -76,21 +77,12 @@ def run_pipeline():
     
     logger.info(f"Validation passed: {validation_result['stats']}")
     
-    # Step 3: Enrich with derived fields
-    logger.info("Step 3: Enriching data with derived fields...")
-    df = enrich_verse_data(df)
-    logger.info(f"Added fields: juz, revelation_place, primary_theme, theme_count")
-    
-    # Step 4: Merge Indonesian translations
-    logger.info("Step 4: Merging Indonesian translations from parquet files...")
-    df = merge_translations(df, parquet_dir=paths.QURAN_DATA_DIR)
-    
-    # Step 5: Normalize text fields
-    logger.info("Step 5: Normalizing text fields...")
+    # Step 3: Normalize text fields
+    logger.info("Step 3: Normalizing text fields...")
     df = normalize_verse_texts(df)
     
-    # Step 6: Export processed data
-    logger.info("Step 6: Exporting processed data...")
+    # Step 4: Export processed data
+    logger.info("Step 4: Exporting processed data...")
     export_results = export_processed_data(df, formats=['json', 'parquet'])
     
     for fmt, path in export_results.items():

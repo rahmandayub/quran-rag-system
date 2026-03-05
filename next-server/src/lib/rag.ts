@@ -17,8 +17,8 @@ export function buildVerseContext(
   return verses.map((v) => {
     // Get translation based on language
     const translation = language === 'en' 
-      ? v.payload.verse_english 
-      : v.payload.verse_indonesian;
+      ? v.payload.english_translation 
+      : v.payload.indonesian_translation;
     
     const languageLabel = language === 'en' 
       ? 'English' 
@@ -26,8 +26,8 @@ export function buildVerseContext(
       ? 'العربية'
       : 'Indonesia';
     
-    return `[${v.payload.reference}]\n` +
-      `Arab: ${v.payload.verse_arabic}\n` +
+    return `[${v.payload.chapter_name} ${v.payload.verse_number}]\n` +
+      `Arab: ${v.payload.arabic_text}\n` +
       `${languageLabel}: ${translation}`;
   }).join('\n---\n');
 }
@@ -45,32 +45,23 @@ export function convertToReferences(
   return verses.map((v) => {
     // Get translation based on language
     const translation = language === 'en'
-      ? v.payload.verse_english
-      : v.payload.verse_indonesian;
-    
-    // Get surah name based on language
-    let surahName: string;
-    if (language === 'en') {
-      surahName = v.payload.surah_name_latin;
-    } else if (language === 'ar') {
-      surahName = v.payload.surah_name_arabic;
-    } else {
-      surahName = v.payload.surah_name_id;
-    }
+      ? v.payload.english_translation
+      : v.payload.indonesian_translation;
     
     return {
-      surah_number: v.payload.surah_number,
+      verse_key: v.payload.verse_key,
+      chapter_id: v.payload.chapter_id,
       verse_number: v.payload.verse_number,
-      surah_name: surahName,
-      surah_name_id: v.payload.surah_name_id,
-      surah_name_en: v.payload.surah_name_en,
-      surah_name_latin: v.payload.surah_name_latin,
-      surah_name_arabic: v.payload.surah_name_arabic,
-      verse_arabic: v.payload.verse_arabic,
-      verse_translation: translation,
-      verse_indonesian: v.payload.verse_indonesian,
+      chapter_name: v.payload.chapter_name,
+      arabic_text: v.payload.arabic_text,
+      translation: translation,
+      indonesian_translation: v.payload.indonesian_translation,
+      english_translation: v.payload.english_translation,
       relevance_score: v.score,
       juz: v.payload.juz,
+      revelation_place: v.payload.revelation_place,
+      main_themes: v.payload.main_themes,
+      tafsir_text: v.payload.tafsir_text,
     };
   });
 }

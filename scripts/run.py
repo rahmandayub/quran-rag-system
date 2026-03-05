@@ -48,16 +48,12 @@ def run_data_processing():
     logger.info("=" * 60)
     
     try:
-        from .data_processing import process_quran_data, save_processed_data
+        from .data_processing import run_pipeline
     except ImportError:
-        from data_processing import process_quran_data, save_processed_data
+        from data_processing import run_pipeline
     
-    # Process data
-    df = process_quran_data()
-    
-    # Save to JSON and Parquet
-    save_processed_data(df, format='json')
-    save_processed_data(df, format='parquet')
+    # Run the pipeline
+    df = run_pipeline()
     
     logger.info(f"Data processing complete. Output: {paths.PROCESSED_DATA_FILE}")
     return True

@@ -1,58 +1,72 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono, Amiri } from 'next/font/google';
+import { Amiri, Lateef, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
-import { LanguageProvider } from '@/i18n/context';
 
+// Font configurations
 const amiri = Amiri({
-    weight: ['400', '700'],
-    subsets: ['arabic'],
-    variable: '--font-amiri',
+  weight: ['400', '700'],
+  subsets: ['arabic', 'latin'],
+  variable: '--font-amiri',
+  display: 'swap',
 });
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
-    subsets: ['latin'],
+const lateef = Lateef({
+  weight: ['400', '600', '700'],
+  subsets: ['arabic', 'latin'],
+  variable: '--font-lateef',
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
-    subsets: ['latin'],
+const cormorantGaramond = Cormorant_Garamond({
+  weight: ['300', '400', '500', '600', '700'],
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-cormorant',
+  display: 'swap',
+  style: ['normal', 'italic'],
 });
 
 export const viewport: Viewport = {
-    width: 'device-width',
-    initialScale: 1,
-    viewportFit: 'cover',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#faf7f2',
 };
 
 export const metadata: Metadata = {
-    title: 'Quran RAG - Platform Dakwah AI',
+  title: 'QuranInsight - Intelligent Qur\'anic Knowledge',
+  description:
+    'A semantic knowledge platform for da\'wah. Search verses, uncover thematic connections, and build understanding rooted in authentic tafsir.',
+  keywords: [
+    'Quran',
+    'Al-Qur\'an',
+    'Tafsir',
+    'Da\'wah',
+    'Islamic Knowledge',
+    'Semantic Search',
+    'AI',
+    'Islam',
+  ],
+  authors: [{ name: 'QuranInsight Team' }],
+  openGraph: {
+    title: 'QuranInsight - Intelligent Qur\'anic Knowledge',
     description:
-        "Tanya jawab Al-Qur'an dengan referensi ayat yang akurat menggunakan AI",
-    keywords: ['Quran', "Al-Qur'an", 'Dakwah', 'AI', 'Islam', 'RAG'],
-    authors: [{ name: 'Quran RAG Team' }],
-    openGraph: {
-        title: 'Quran RAG - Platform Dakwah AI',
-        description:
-            "Tanya jawab Al-Qur'an dengan referensi ayat yang akurat menggunakan AI",
-        type: 'website',
-    },
+      'Explore the Qur\'an with depth and clarity',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="id" suppressHydrationWarning>
-            <body
-                className={`${geistSans.variable} ${geistMono.variable} ${amiri.variable} antialiased`}
-            >
-                <LanguageProvider>
-                    {children}
-                </LanguageProvider>
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${amiri.variable} ${lateef.variable} ${cormorantGaramond.variable} font-sans`}
+      >
+        {children}
+      </body>
+    </html>
+  );
 }

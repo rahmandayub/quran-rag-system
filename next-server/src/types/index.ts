@@ -9,7 +9,7 @@ export interface LanguageConfig {
   flag: string;
 }
 
-// Enhanced Verse payload from Qdrant (new schema with themes and tafsir)
+// Enhanced Verse payload from Qdrant (new schema with main_themes)
 export interface VersePayload {
   // Core identifiers
   verse_key: string;
@@ -21,11 +21,8 @@ export interface VersePayload {
   juz: number;
   revelation_place: 'Makkah' | 'Madinah';
   
-  // Theme fields
-  main_themes: string; // JSON array string
-  primary_theme: string;
-  theme_count: number;
-  audience_group: string;
+  // Theme field (theme string from CSV)
+  main_themes: string;
   
   // Text content
   arabic_text: string;
@@ -64,8 +61,7 @@ export interface LocalizedVersePayload {
   verse_translation: string; // Translation in the selected language
   juz: number;
   revelation_place: 'Makkah' | 'Madinah';
-  primary_theme: string;
-  main_themes: string[];
+  main_themes: string;
 }
 
 // Individual verse within a surah context
@@ -123,7 +119,7 @@ export interface ChatResponse {
   processing_time_ms: number;
 }
 
-// Verse reference for UI (enhanced with themes)
+// Verse reference for UI (with main_themes)
 export interface VerseReference {
   verse_key: string;
   chapter_id: number;
@@ -136,8 +132,7 @@ export interface VerseReference {
   relevance_score: number;
   juz: number;
   revelation_place: 'Makkah' | 'Madinah';
-  primary_theme: string;
-  main_themes: string[];
+  main_themes: string;
   tafsir_text?: string;
 }
 
@@ -227,6 +222,6 @@ export interface VerseOfTheDay {
   verse_number: number;
   juz: number;
   revelation_place: 'Makkah' | 'Madinah';
+  main_themes: string;
   tafsir_text?: string;
-  themes: string[];
 }

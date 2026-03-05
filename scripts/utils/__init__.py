@@ -4,7 +4,6 @@ Utility modules for Quran RAG data preparation pipeline.
 Provides reusable utilities for:
 - Juz mapping (determining juz number for verses)
 - Revelation place mapping (Makkah/Madinah)
-- Indonesian translation merging
 - Text normalization
 """
 
@@ -24,14 +23,6 @@ from .revelation_mapping import (
     is_madani,
     add_revelation_place_to_dataframe,
     MADANI_SURAHS,
-)
-
-from .translation_merge import (
-    load_parquet_files,
-    normalize_parquet_columns,
-    extract_indonesian_translations,
-    merge_indonesian_translations,
-    create_verse_key,
 )
 
 # Import existing utilities from utils.py
@@ -60,12 +51,6 @@ __all__ = [
     'is_madani',
     'add_revelation_place_to_dataframe',
     'MADANI_SURAHS',
-    # Translation merge
-    'load_parquet_files',
-    'normalize_parquet_columns',
-    'extract_indonesian_translations',
-    'merge_indonesian_translations',
-    'create_verse_key',
     # Text utilities
     'normalize_text',
 ]

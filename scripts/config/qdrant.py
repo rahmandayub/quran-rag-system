@@ -34,14 +34,14 @@ class QdrantConfig:
     MEMMAP_THRESHOLD: int = 10000
     DEFAULT_SEGMENT_NUMBER: int = 2
     
-    # Payload indexes to create
+    # Payload indexes to create - UPDATED with more fields for filtering
     PAYLOAD_INDEXES: List[dict] = field(default_factory=lambda: [
         {"field": "chapter_id", "type": "integer"},
+        {"field": "verse_number", "type": "integer"},
         {"field": "juz", "type": "integer"},
         {"field": "main_themes", "type": "keyword"},
-        {"field": "primary_theme", "type": "keyword"},
-        {"field": "audience_group", "type": "keyword"},
         {"field": "revelation_place", "type": "keyword"},
+        {"field": "chapter_name", "type": "keyword"},
     ])
     
     # Batch upsert settings

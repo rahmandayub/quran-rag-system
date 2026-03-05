@@ -3,6 +3,10 @@ Dataset configuration for Quran RAG data preparation pipeline.
 
 Defines dataset-specific settings including column mappings, required fields,
 and data enrichment configurations.
+
+UPDATED: Now uses parquet dataset as primary source for authentic Arabic text
+(arabic-text-uthmani) and Indonesian translations, with CSV enrichment data
+(tafsir, themes) merged in.
 """
 
 import os
@@ -14,38 +18,43 @@ from typing import List
 class DatasetConfig:
     """Dataset-specific configuration."""
     
-    # Dataset metadata
-    DATASET_NAME: str = "quranpak-explore-114"
-    DATASET_FORMAT: str = "csv"
+    # Dataset metadata - UPDATED to use parquet as primary source
+    DATASET_NAME: str = "quran-uthmani-indonesian"
+    DATASET_FORMAT: str = "parquet"  # Changed from "csv"
     
     # Expected total verses
     TOTAL_VERSES: int = 6236
     SURAH_COUNT: int = 114
     
-    # Source CSV columns (from new dataset)
-    SOURCE_COLUMNS: List[str] = field(default_factory=lambda: [
+    # Primary data source: Parquet dataset columns
+    PARQUET_ARABIC_COLUMNS: List[str] = field(default_factory=lambda: [
+        'arabic-text-uthmani',      # Primary: Uthmani script with diacritics
+        'arabic-text-simple',       # Fallback: Standard Arabic
+    ])
+    PARQUET_INDONESIAN_COLUMN: str = 'translation-id-indonesian'
+    PARQUET_ENGLISH_COLUMN: str = 'translation-en-sahih'
+    
+    # Source CSV columns (for enrichment data only - tafsir, themes)
+    CSV_ENRICHMENT_COLUMNS: List[str] = field(default_factory=lambda: [
         'chapter_id',
         'verse_number',
         'verse_key',
-        'chapter_name',
-        'arabic_text',
-        'english_translation',
-        'tafsir',  # Note: CSV uses 'tafsir' not 'tafsir_text'
+        'tafsir',
         'main_themes',
         'practical_application',
-        'audience_group',
-        'translation_length',
+        'english_translation',  # Use CSV English as fallback
     ])
     
-    # Required columns (must be present)
+    # Required columns after merge (must be present in final dataset)
     REQUIRED_COLUMNS: List[str] = field(default_factory=lambda: [
+        'verse_key',
         'chapter_id',
         'verse_number',
-        'verse_key',
-        'arabic_text',
-        'english_translation',
-        'tafsir',  # Note: CSV uses 'tafsir' not 'tafsir_text'
-        'main_themes',
+        'arabic_text',              # From parquet arabic-text-uthmani
+        'indonesian_translation',   # From parquet translation-id-indonesian
+        'english_translation',      # From CSV or parquet fallback
+        'tafsir_text',              # From CSV
+        'main_themes',              # From CSV
     ])
     
     # Column type mappings for validation
@@ -55,42 +64,19 @@ class DatasetConfig:
         'verse_key': 'string',
         'chapter_name': 'string',
         'arabic_text': 'string',
+        'indonesian_translation': 'string',
         'english_translation': 'string',
         'tafsir_text': 'string',
-        'main_themes': 'string',  # JSON array string
+        'main_themes': 'string',
         'practical_application': 'string',
-        'audience_group': 'string',
         'translation_length': 'int64',
     })
     
-    # Target field names (after transformation)
-    TARGET_FIELDS: dict = field(default_factory=lambda: {
-        'chapter_id': 'chapter_id',
-        'verse_number': 'verse_number',
-        'verse_key': 'verse_key',
-        'chapter_name': 'chapter_name',
-        'arabic_text': 'arabic_text',
-        'english_translation': 'english_translation',
-        'tafsir_text': 'tafsir_text',
-        'main_themes': 'main_themes',
-        'practical_application': 'practical_application',
-        'audience_group': 'audience_group',
-        'translation_length': 'translation_length',
-        # Added fields
-        'verse_id': 'verse_id',  # Same as verse_key
-        'indonesian_translation': 'indonesian_translation',  # From merge
-        'juz': 'juz',  # From enrichment
-        'revelation_place': 'revelation_place',  # From enrichment
-        'tafsir_length': 'tafsir_length',  # Computed
-        'primary_theme': 'primary_theme',  # Computed (first theme)
-        'theme_count': 'theme_count',  # Computed
-    })
-    
-    # Fields to include in embedding text
+    # Fields to include in embedding text - UPDATED to use Indonesian
     EMBEDDING_SOURCE_FIELDS: List[str] = field(default_factory=lambda: [
-        'arabic_text',
-        'english_translation',
-        'main_themes',
+        'arabic_text',              # From parquet arabic-text-uthmani
+        'indonesian_translation',   # From parquet translation-id-indonesian
+        'main_themes',              # From CSV
     ])
     
     # Include tafsir in embedding (richer context, slower)
@@ -104,13 +90,14 @@ class DatasetConfig:
     THEME_SEPARATOR: str = ","  # How themes are separated in CSV
     THEME_STRIP_CHARS: str = "[]'\""  # Characters to strip from theme strings
     
-    # Legacy parquet columns (for Indonesian merge)
-    LEGACY_PARQUET_COLUMNS: dict = field(default_factory=lambda: {
-        'surah': 'surah_number',
+    # Column name mappings for merged dataset
+    MERGED_COLUMN_MAPPINGS: dict = field(default_factory=lambda: {
+        'surah': 'chapter_id',
         'ayah': 'verse_number',
-        'translation-id-indonesian': 'verse_indonesian',
-        'arabic-text-uthmani': 'verse_arabic',
-        'translation-en-sahih': 'verse_english',
+        'arabic-text-uthmani': 'arabic_text',
+        'translation-id-indonesian': 'indonesian_translation',
+        'translation-en-sahih': 'english_translation',
+        'surah-name-en': 'chapter_name',
     })
     
     # Verse key format for merging

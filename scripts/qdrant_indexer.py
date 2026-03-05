@@ -181,7 +181,7 @@ class QdrantIndexer:
         """
         Create payload dictionary from verse data.
         
-        Uses new enhanced schema with themes, tafsir, and Indonesian translations.
+        Uses simplified schema with main_themes (theme string from CSV).
         
         Args:
             verse: Verse dictionary
@@ -200,11 +200,8 @@ class QdrantIndexer:
             'juz': int(verse.get('juz', 0)),
             'revelation_place': verse.get('revelation_place', ''),
             
-            # Theme fields (for filtering)
-            'main_themes': verse.get('main_themes', '[]'),
-            'primary_theme': verse.get('primary_theme', ''),
-            'theme_count': int(verse.get('theme_count', 0)),
-            'audience_group': verse.get('audience_group', ''),
+            # Theme field (theme string from CSV)
+            'main_themes': verse.get('main_themes', ''),
             
             # Text content
             'arabic_text': verse.get('arabic_text', ''),

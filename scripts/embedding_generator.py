@@ -284,8 +284,8 @@ def generate_all_embeddings(
         f"{status['remaining']} remaining"
     )
     
-    # Filter out already processed verses
-    remaining_data = [v for v in data if v.get('verse_key') not in processed_keys]
+    # Filter out already processed verses (support both 'verse_key' and 'id' fields)
+    remaining_data = [v for v in data if (v.get('verse_key') or v.get('id')) not in processed_keys]
     logger.info(f"Remaining verses to process: {len(remaining_data)}")
     
     # Process remaining verses
@@ -295,7 +295,8 @@ def generate_all_embeddings(
             embedding_text = prepare_embedding_text(verse)
             
             if not embedding_text.strip():
-                logger.warning(f"No text for embedding in verse {verse.get('verse_key')}")
+                verse_key = verse.get('verse_key') or verse.get('id')
+                logger.warning(f"No text for embedding in verse {verse_key}")
                 pbar.update(1)
                 continue
             
@@ -303,25 +304,27 @@ def generate_all_embeddings(
             embedding = client.generate_embedding(embedding_text)
             
             if embedding is not None:
-                # Save checkpoint
+                # Save checkpoint (support both 'verse_key' and 'id' fields)
+                verse_key = verse.get('verse_key') or verse.get('id')
                 checkpoint_manager.save_checkpoint(
-                    verse_key=verse.get('verse_key'),
+                    verse_key=verse_key,
                     embedding=embedding,
                     processed_count=len(processed_keys) + (total_verses - len(remaining_data)),
                     total_count=total_verses
                 )
             else:
-                logger.warning(f"Failed to generate embedding for verse {verse.get('verse_key')}")
+                verse_key = verse.get('verse_key') or verse.get('id')
+                logger.warning(f"Failed to generate embedding for verse {verse_key}")
             
             pbar.update(1)
     
     # Load all embeddings (including previously processed)
     all_embeddings = checkpoint_manager.load_checkpoint()
     
-    # Combine verse data with embeddings
+    # Combine verse data with embeddings (support both 'verse_key' and 'id' fields)
     results = []
     for verse in data:
-        verse_key = verse.get('verse_key')
+        verse_key = verse.get('verse_key') or verse.get('id')
         if verse_key in all_embeddings:
             verse_with_embedding = verse.copy()
             verse_with_embedding['embedding'] = all_embeddings[verse_key]

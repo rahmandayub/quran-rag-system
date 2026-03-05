@@ -81,6 +81,7 @@ dmypy.json
 
 # datasets
 datasets/zincly/*.csv
+datasets/quran/data/
 
 # data files
 next-server/data/

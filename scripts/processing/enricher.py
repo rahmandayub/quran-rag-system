@@ -7,7 +7,6 @@ Provides functions to add derived fields like juz, revelation place, and theme a
 import json
 import pandas as pd
 from loguru import logger
-from tqdm import tqdm
 
 try:
     from ..config import dataset_config
@@ -74,59 +73,6 @@ def add_revelation_place_column(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def parse_themes(df: pd.DataFrame, theme_column: str = 'main_themes') -> pd.DataFrame:
-    """
-    Parse theme strings and add primary_theme and theme_count columns.
-    
-    Args:
-        df: DataFrame with main_themes column (JSON array string)
-        theme_column: Name of the theme column
-        
-    Returns:
-        DataFrame with added 'primary_theme' and 'theme_count' columns
-    """
-    df = df.copy()
-    
-    if theme_column not in df.columns:
-        logger.warning(f"Theme column '{theme_column}' not found")
-        df['primary_theme'] = None
-        df['theme_count'] = 0
-        return df
-    
-    logger.info("Parsing themes...")
-    
-    def extract_primary_theme(theme_str):
-        """Extract first theme from JSON array string."""
-        if pd.isna(theme_str) or not theme_str:
-            return None
-        try:
-            themes = json.loads(theme_str)
-            if isinstance(themes, list) and len(themes) > 0:
-                return themes[0]
-        except (json.JSONDecodeError, TypeError):
-            pass
-        return None
-    
-    def count_themes(theme_str):
-        """Count themes in JSON array string."""
-        if pd.isna(theme_str) or not theme_str:
-            return 0
-        try:
-            themes = json.loads(theme_str)
-            if isinstance(themes, list):
-                return len(themes)
-        except (json.JSONDecodeError, TypeError):
-            pass
-        return 0
-    
-    df['primary_theme'] = df[theme_column].apply(extract_primary_theme)
-    df['theme_count'] = df[theme_column].apply(count_themes)
-    
-    logger.info(f"Added primary_theme and theme_count columns")
-    
-    return df
-
-
 def add_derived_fields(df: pd.DataFrame) -> pd.DataFrame:
     """
     Add all derived fields to the DataFrame.
@@ -134,9 +80,9 @@ def add_derived_fields(df: pd.DataFrame) -> pd.DataFrame:
     This includes:
     - juz: Juz number (1-30)
     - revelation_place: Makkah or Madinah
-    - primary_theme: First theme from main_themes array
-    - theme_count: Number of themes
     - tafsir_length: Length of tafsir text
+    
+    Note: main_themes is kept as-is from the source CSV (no primary_theme derivation).
     
     Args:
         df: DataFrame with base verse data
@@ -156,9 +102,6 @@ def add_derived_fields(df: pd.DataFrame) -> pd.DataFrame:
     
     # Add revelation place
     df = add_revelation_place_column(df)
-    
-    # Parse themes
-    df = parse_themes(df)
     
     # Add tafsir length
     if 'tafsir_text' in df.columns:
